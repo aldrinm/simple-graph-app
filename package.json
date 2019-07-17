@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/aldrinm/simple-graph-app/issues"
   },
-  "homepage": "https://github.com/aldrinm/simple-graph-app#readme"
+  "homepage": "https://github.com/aldrinm/simple-graph-app#readme",
+  "neo4jDesktop" : {
+    "apiVersion" : "^1.2.0"
+  }
 }
