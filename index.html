@@ -5,24 +5,40 @@
     <title>A Simple Graph App</title>
 </head>
 <body>
-    Hello Graph 🌍️ !
+    <div id="main">Hello Graph 🌍️ !</div>
+    
+    <div>
+        <span><b>Labels in the Active Graph</b></span>
+        <ul id="labels">
+        </ul>
+    </div>
+    
 </body>
 
 <script src="https://unpkg.com/neo4j-driver"></script>
 <script>
     if (window.neo4jDesktopApi) {
+        let mainDiv = document.getElementById("main");
         neo4jDesktopApi.getContext()
             .then((context) => {
                 for (let project of context.projects) {
-                    if (project.name === 'Simple graph apps') {                    
-                    console.log("Project :: " + project.name);
+                    const projectEl = document.createElement('div');
+                    projectEl.style.cssText = "font-weight: bold";
+                    projectEl.appendChild(document.createTextNode(project.name));
+                    mainDiv.appendChild(projectEl);
+                    const listEl = document.createElement('ul');
                     for (let graph of project.graphs) {
-                        console.log("  " + graph.name + " (" + graph.description + ")");
+                        const listItemFragment = document.createDocumentFragment();
+                        const text = document.createTextNode(graph.name + ' (' + graph.description +') ');
+                        const listItem = document.createElement('li');
+                        listItem.appendChild(text);
+                        listItemFragment.appendChild(listItem);
+                        listEl.appendChild(listItemFragment);
                     }
-                    }
+                    mainDiv.appendChild(listEl);
                 }
             }
-        );
+        ); 
 
         //query the active graph
         neo4jDesktopApi.getContext()
@@ -37,13 +53,15 @@
 
                             //Create a session and execute a query
                             let session = driver.session();
-                            console.log("Labels::");
                             session.run("CALL db.labels() YIELD label RETURN label ORDER BY label")
                                 .then(result => {
                                     if (result.records && result.records.length>0) {
+                                        let labelsList = document.getElementById("labels");
                                         for (var i = 0; i < result.records.length; i++) {
                                             const r = result.records[i]
-                                            console.log(" " + r.get('label'));    
+                                            const labelItem = document.createElement('li');
+                                            labelItem.appendChild(document.createTextNode(r.get('label')));
+                                            labelsList.appendChild(labelItem);
                                         }
                                     }
                                 })
