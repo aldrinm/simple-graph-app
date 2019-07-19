@@ -2,11 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My first graph app</title>
+    <title>A Simple Graph App</title>
 </head>
 <body>
-    Hello Node!!     
+    Hello Graph 🌍️ !
 </body>
+
+<script src="https://unpkg.com/neo4j-driver"></script>
+<script>
+    if (window.neo4jDesktopApi) {
+        neo4jDesktopApi.getContext()
+            .then((context) => {
+                for (let project of context.projects) {
+                    if (project.name === 'Simple graph apps') {                    
+                    console.log("Project :: " + project.name);
+                    for (let graph of project.graphs) {
+                        console.log("  " + graph.name + " (" + graph.description + ")");
+                    }
+                    }
+                }
+            }
+        );
+
+        //query the active graph
+        neo4jDesktopApi.getContext()
+            .then((context) => {
+                for (let project of context.projects) {
+                    for (let graph of project.graphs) {
+                        if (graph.status === 'ACTIVE') {
+                            //obtain the bolt protocol which has all the connection details
+                            let boltProtocol = graph.connection.configuration.protocols.bolt;
+                            
+                            let driver = neo4j.v1.driver(boltProtocol.url, neo4j.v1.auth.basic(boltProtocol.username, boltProtocol.password));
+
+                            //Create a session and execute a query
+                            let session = driver.session();
+                            console.log("Labels::");
+                            session.run("CALL db.labels() YIELD label RETURN label ORDER BY label")
+                                .then(result => {
+                                    if (result.records && result.records.length>0) {
+                                        for (var i = 0; i < result.records.length; i++) {
+                                            const r = result.records[i]
+                                            console.log(" " + r.get('label'));    
+                                        }
+                                    }
+                                })
+                                .catch(function(error) {
+                                    console.log(error);
+                                });
+
+                        }    
+                    }
+                }
+                
+            });
+
+    }
+
+</script>
 </html>
